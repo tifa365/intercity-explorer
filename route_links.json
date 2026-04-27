@@ -1,0 +1,226 @@
+{
+  "EC 95": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-EC_95",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=95"
+  },
+  "EC 96": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-EC_96",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=96"
+  },
+  "ECE 75": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ECE_75",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=75"
+  },
+  "ECE 88": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ECE_88",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=88"
+  },
+  "IC 17": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-IC_17",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=17"
+  },
+  "IC 34": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-IC_34",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=34"
+  },
+  "IC 35": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-IC_35",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=35"
+  },
+  "IC 51": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-IC_51",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=51"
+  },
+  "IC 55": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-IC_55",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=55"
+  },
+  "IC 55/56": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-IC_55_56",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=55"
+  },
+  "IC 56": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-IC_56",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=56"
+  },
+  "IC 61": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-IC_61",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=61"
+  },
+  "IC 76": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-IC_76",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=76"
+  },
+  "IC 87": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-IC_87",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=87"
+  },
+  "ICE 1": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_1",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=1"
+  },
+  "ICE 1/33": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_1_33",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=1"
+  },
+  "ICE 10": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_10",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=10"
+  },
+  "ICE 11": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_11",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=11"
+  },
+  "ICE 11/50": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_11_50",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=11"
+  },
+  "ICE 12": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_12",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=12"
+  },
+  "ICE 12/13": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_12_13",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=12"
+  },
+  "ICE 13": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_13",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=13"
+  },
+  "ICE 14": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_14",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=14"
+  },
+  "ICE 15": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_15",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=15"
+  },
+  "ICE 16": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_16",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=16"
+  },
+  "ICE 18": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_18",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=18"
+  },
+  "ICE 18/28": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_18_28",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=18"
+  },
+  "ICE 19": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_19",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=19"
+  },
+  "ICE 20": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_20",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=20"
+  },
+  "ICE 20/22": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_20_22",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=20"
+  },
+  "ICE 22": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_22",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=22"
+  },
+  "ICE 25": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_25",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=25"
+  },
+  "ICE 26": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_26",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=26"
+  },
+  "ICE 28": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_28",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=28"
+  },
+  "ICE 29": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_29",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=29"
+  },
+  "ICE 3": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_3",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=3"
+  },
+  "ICE 33": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_33",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=33"
+  },
+  "ICE 4": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_4",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=4"
+  },
+  "ICE 41": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_41",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=41"
+  },
+  "ICE 42": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_42",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=42"
+  },
+  "ICE 42/43": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_42_43",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=42"
+  },
+  "ICE 42/47": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_42_47",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=42"
+  },
+  "ICE 43": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_43",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=43"
+  },
+  "ICE 47": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_47",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=47"
+  },
+  "ICE 49": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_49",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=49"
+  },
+  "ICE 50": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_50",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=50"
+  },
+  "ICE 60": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_60",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=60"
+  },
+  "ICE 62": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_62",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=62"
+  },
+  "ICE 77": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_77",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=77"
+  },
+  "ICE 78": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_78",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=78"
+  },
+  "ICE 78/79": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_78_79",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=78"
+  },
+  "ICE 79": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_79",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=79"
+  },
+  "ICE 9": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_9",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=9"
+  },
+  "ICE 91": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_91",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=91"
+  },
+  "ICE/TGV 82": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_TGV_82",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=82"
+  },
+  "ICE/TGV 83": {
+    "zugfinder": "https://www.zugfinder.net/de/zug-ICE_TGV_83",
+    "fernbahn": "https://www.fernbahn.de/datenbank/suche?zugnummer=83"
+  }
+}
