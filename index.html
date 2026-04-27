@@ -11,7 +11,7 @@
     html, body {
       margin: 0;
       overflow: hidden;
-      background: #e8e8e8;
+      background: #ffffff;
       font-family: "Avenir Next", "Helvetica Neue", "Arial Nova", sans-serif;
       color: #171717;
     }
@@ -29,7 +29,7 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: #f0f0f0;
+      background: #ffffff;
     }
 
     #map {
@@ -50,7 +50,9 @@
     .station-hit {
       fill: transparent;
       stroke: transparent;
-      stroke-width: 0;
+      /* stroke stays at a fixed screen-pixel width regardless of zoom */
+      vector-effect: non-scaling-stroke;
+      stroke-width: 2;
       cursor: pointer;
       transition: fill 120ms ease, stroke 120ms ease;
     }
@@ -58,8 +60,31 @@
     .station-hit:hover {
       fill: rgba(255, 140, 0, 0.15);
       stroke: rgba(255, 140, 0, 0.8);
-      stroke-width: 1.5;
     }
+
+    /* ── Route label hit circles — same hover style as stations ── */
+    .route-label-hit {
+      fill: transparent;
+      stroke: transparent;
+      vector-effect: non-scaling-stroke;
+      stroke-width: 2;
+      cursor: pointer;
+      transition: fill 120ms ease, stroke 120ms ease;
+    }
+
+    .route-label-hit:hover {
+      fill: rgba(60, 150, 240, 0.15);
+      stroke: rgba(60, 150, 240, 0.8);
+    }
+
+    /* Route popup: show route links, hide station-only links */
+    #popup[data-mode="route"] #link-bf,
+    #popup[data-mode="route"] #link-dbf,
+    #popup[data-mode="route"] #link-wd,
+    #popup[data-mode="route"] #link-wp,
+    #popup[data-mode="route"] #link-fb { display: none; }
+
+    .icon-btn.fb { background: #37474f; }
 
     /* ── HUD ── */
     #hud {
@@ -207,9 +232,22 @@
     .icon-btn.wp  { background: #1a1a1a; }
     .icon-btn.wd  { background: #006699; }
     .icon-btn.dbf { background: #EC0016; }
+    .icon-btn.bf  { background: #003082; }
+    .icon-btn.zf  { background: #e67e22; }
 
     .icon-btn img,
     .icon-btn svg { display: block; }
+
+    /* Disabled state — shown while checking or when page not found */
+    .icon-btn.disabled {
+      opacity: 0.28;
+      filter: grayscale(1);
+      box-shadow: none;
+      pointer-events: none;
+      cursor: default;
+      transform: none !important;
+      transition: opacity 300ms ease, filter 300ms ease;
+    }
   </style>
 </head>
 <body>
@@ -233,9 +271,24 @@
     </div>
     <div class="popup-icons">
 
-      <!-- Wikipedia -->
-      <a id="link-wp" class="icon-btn wp" href="#" target="_blank" rel="noopener" title="Wikipedia">
-        <img src="https://cdn.simpleicons.org/wikipedia/white" width="22" height="22" alt="Wikipedia">
+      <!-- Bahnhof.de station overview -->
+      <a id="link-bf" class="icon-btn bf" href="#" target="_blank" rel="noopener" title="Bahnhof.de">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="white" aria-hidden="true">
+          <polygon points="12,2 22,10 2,10"/>
+          <rect x="3" y="10" width="18" height="12" rx="1"/>
+        </svg>
+      </a>
+
+      <!-- DBF / Final Rewind departure board -->
+      <a id="link-dbf" class="icon-btn dbf" href="#" target="_blank" rel="noopener" title="Final Rewind (DBF)">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="white" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="11" rx="3"/>
+          <rect x="6" y="7" width="4" height="3" rx="1" fill="#EC0016"/>
+          <rect x="14" y="7" width="4" height="3" rx="1" fill="#EC0016"/>
+          <rect x="2" y="14" width="20" height="2" rx="1"/>
+          <circle cx="7"  cy="18" r="2"/>
+          <circle cx="17" cy="18" r="2"/>
+        </svg>
       </a>
 
       <!-- Wikidata -->
@@ -243,17 +296,25 @@
         <img src="https://cdn.simpleicons.org/wikidata/white" width="22" height="22" alt="Wikidata">
       </a>
 
-      <!-- DBF departure board -->
-      <a id="link-dbf" class="icon-btn dbf" href="#" target="_blank" rel="noopener" title="Abfahrttafel (DBF)">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="white" aria-hidden="true">
-          <!-- Stylised train: body + windows + wheels -->
-          <rect x="3" y="4" width="18" height="11" rx="3"/>
-          <rect x="6" y="7" width="4" height="3" rx="1" fill="#EC0016"/>
-          <rect x="14" y="7" width="4" height="3" rx="1" fill="#EC0016"/>
-          <rect x="2" y="14" width="20" height="2" rx="1"/>
-          <circle cx="7"  cy="18" r="2"/>
-          <circle cx="17" cy="18" r="2"/>
-          <line x1="7" y1="16" x2="7"  y2="16" stroke="#EC0016" stroke-width="0"/>
+      <!-- Wikipedia -->
+      <a id="link-wp" class="icon-btn wp" href="#" target="_blank" rel="noopener" title="Wikipedia">
+        <img src="https://cdn.simpleicons.org/wikipedia/white" width="22" height="22" alt="Wikipedia">
+      </a>
+
+      <!-- Fernbahn.de station search (station mode only) -->
+      <a id="link-fb" class="icon-btn fb" href="#" target="_blank" rel="noopener" title="Fernbahn.de — Fernverkehr ab diesem Bahnhof">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <ellipse cx="12" cy="6" rx="8" ry="3"/>
+          <path d="M4 6v4c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/>
+          <path d="M4 10v4c0 1.66 3.58 3 8 3s8-1.34 8-3v-4"/>
+        </svg>
+      </a>
+
+      <!-- Zugfinder live train tracker -->
+      <a id="link-zf" class="icon-btn zf" href="#" target="_blank" rel="noopener" title="Zugfinder — Live-Status &amp; Verspätung">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="10" cy="10" r="6"/>
+          <line x1="14.5" y1="14.5" x2="20" y2="20"/>
         </svg>
       </a>
 
@@ -272,12 +333,18 @@
     //   • next text starts with '('        → parenthetical qualifier ("(Main)")
     //   • next text is a known station suffix ("Hbf", "Flughafen", …)
     const STATION_SUFFIXES = new Set(["Hbf", "West", "Ost", "Nord", "Süd", "Mitte", "Flughafen"]);
+    const LOCATIVE_PREPS   = new Set(["am", "im", "an", "bei", "ob", "a.", "i."]);
 
     function isContinuation(prevText, nextText) {
       if (prevText.endsWith("-"))              return true;
       if (nextText[0] !== nextText[0].toUpperCase()) return true; // lowercase start
       if (nextText.startsWith("("))            return true;
       if (STATION_SUFFIXES.has(nextText.trim())) return true;
+      const prevWords = prevText.trim().split(/\s+/);
+      // Single-word prefix like "Bad", "Lutherstadt", "Schwäbisch" — clearly incomplete
+      if (prevWords.length === 1 && !STATION_SUFFIXES.has(prevText.trim())) return true;
+      // Locative preposition ending: "Prien am" → "Chiemsee"
+      if (LOCATIVE_PREPS.has(prevWords[prevWords.length - 1].toLowerCase())) return true;
       return false;
     }
 
@@ -333,22 +400,59 @@
       return result;
     }
 
+    function toSlug(name) {
+      return name.toLowerCase()
+        .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
     // ── Popup ────────────────────────────────────────────────────────────────
     const popup     = document.getElementById("popup");
     const popupName = document.getElementById("popup-name");
     const linkWp    = document.getElementById("link-wp");
     const linkWd    = document.getElementById("link-wd");
     const linkDbf   = document.getElementById("link-dbf");
+    const linkBf    = document.getElementById("link-bf");
+    const linkZf    = document.getElementById("link-zf");
+    const linkFb    = document.getElementById("link-fb");
+
+    let stationLinks = {};  // populated from station_links.json at load time
+    let routeLinks   = {};  // populated from route_links.json at load time
 
     function showPopup(name, clientX, clientY) {
       popupName.textContent = name;
 
-      // Build links from station name
-      const wikiName = name.replace(/ /g, "_");
-      const encoded  = encodeURIComponent(name);
-      linkWp.href  = `https://de.wikipedia.org/wiki/${encodeURIComponent(wikiName)}`;
-      linkWd.href  = `https://www.wikidata.org/w/index.php?search=${encoded}&language=de&ns0=1`;
+      const wikiTitle = name.replace(/ /g, "_");
+      const encoded   = encodeURIComponent(name);
+      const qid       = stationLinks[name];
+      linkWp.href  = `https://de.wikipedia.org/wiki/${encodeURIComponent(wikiTitle)}`;
+      linkWd.href  = qid
+        ? `https://www.wikidata.org/wiki/${qid}`
+        : `https://www.wikidata.org/w/index.php?search=${encoded}&language=de&ns0=1`;
       linkDbf.href = `https://dbf.finalrewind.org/${encoded}`;
+      linkBf.href  = `https://www.bahnhof.de/${toSlug(name)}`;
+      linkFb.href  = `https://www.fernbahn.de/datenbank/suche/?bahnhof=${encoded}`;
+      linkZf.href  = `https://www.zugfinder.net/de/bahnhofssuche-${encoded}`;
+
+      popup.style.left = clientX + "px";
+      popup.style.top  = clientY + "px";
+      popup.classList.remove("hidden");
+    }
+
+    function showRoutePopup(names, color, clientX, clientY) {
+      const name = names[0] || "";
+      popupName.textContent = names.join(" · ") || "Unbekannte Linie";
+      document.querySelector(".popup-train-icon").textContent = "🚄";
+      popup.dataset.mode = "route";
+
+      const urls = routeLinks[name];
+      if (urls) {
+        linkZf.href = urls.zugfinder;
+      } else {
+        const enc = encodeURIComponent(name);
+        linkZf.href = `https://www.zugfinder.net/de/zug-${enc.replace(/%20/g, "_")}`;
+      }
 
       popup.style.left = clientX + "px";
       popup.style.top  = clientY + "px";
@@ -357,6 +461,8 @@
 
     function hidePopup() {
       popup.classList.add("hidden");
+      document.querySelector(".popup-train-icon").textContent = "🚉";
+      popup.dataset.mode = "station";
     }
 
     document.getElementById("popup-close").addEventListener("click", (e) => {
@@ -369,8 +475,13 @@
     // on file://. Run: python3 -m http.server 8080  then open localhost:8080
     Promise.all([
       d3.xml("germany_map.svg"),
-      d3.json("station_names_positions.json")
-    ]).then(([svgDocument, rawStations]) => {
+      d3.json("station_names_positions.json"),
+      d3.json("station_links.json"),
+      d3.json("route_labels.json"),
+      d3.json("route_links.json"),
+    ]).then(([svgDocument, rawStations, links, routeLabels, rLinks]) => {
+      stationLinks = links;
+      routeLinks   = rLinks;
 
       // ── Adopt SVG into the page ──────────────────────────────────────────
       const importedSvg = document.importNode(svgDocument.documentElement, true);
@@ -408,6 +519,30 @@
       // ── Station hit circles ──────────────────────────────────────────────
       const stations = groupStations(rawStations);
 
+      // Target clickable radius in CSS pixels, constant at any zoom level.
+      const HIT_PX = 14;
+
+      // The SVG viewBox is 1191×1684. When it scales to fill the container
+      // via preserveAspectRatio, 1 SVG unit = svgScale CSS pixels.
+      // D3 zoom adds an extra k factor on top. We keep r = HIT_PX / (svgScale × k)
+      // so the circle always covers HIT_PX pixels on screen.
+      // Cache svgScale — getBoundingClientRect is expensive; only recompute on resize.
+      let _svgScale = null;
+      function svgScale() {
+        if (_svgScale !== null) return _svgScale;
+        const r = importedSvg.getBoundingClientRect();
+        _svgScale = Math.min(r.width / 1191, r.height / 1684);
+        return _svgScale;
+      }
+
+      let _lastK = null;
+      function updateHitRadii(k) {
+        if (k === _lastK) return; // skip if zoom level unchanged (e.g. pure pan)
+        _lastK = k;
+        const r = HIT_PX / (svgScale() * k);
+        interactionLayer.selectAll(".station-hit, .route-label-hit").attr("r", r);
+      }
+
       interactionLayer.selectAll(".station-hit")
         .data(stations)
         .enter()
@@ -415,7 +550,7 @@
           .attr("class", "station-hit")
           .attr("cx", (d) => d.cx)
           .attr("cy", (d) => d.cy)
-          .attr("r", 10)
+          .attr("r", 0) // set properly below
           .attr("data-name", (d) => d.name)
           .on("click", function(event) {
             event.stopPropagation();
@@ -423,24 +558,153 @@
             showPopup(d.name, event.clientX, event.clientY);
           });
 
+      // Set initial radii (k=1 fallback for portrait screens).
+      updateHitRadii(1);
+
+      // ── Route label hit circles ──────────────────────────────────────────
+      interactionLayer.selectAll(".route-label-hit")
+        .data(routeLabels)
+        .enter()
+        .append("circle")
+          .attr("class", "route-label-hit")
+          .attr("cx", d => d.cx)
+          .attr("cy", d => d.cy)
+          .attr("r", 0)
+          .on("click", function(event) {
+            event.stopPropagation();
+            const d = d3.select(this).datum();
+            showRoutePopup([d.name], d.color, event.clientX, event.clientY);
+          });
+
       // ── D3 zoom (pan + scroll-wheel zoom) ───────────────────────────────
       const zoom = d3.zoom()
-        .scaleExtent([0.4, 10])
+        .scaleExtent([0.3, 12])
+        // Keep the map in frame: user can't pan past the SVG artwork edges.
+        // The transform (x, y, k) lives in SVG viewBox coords (1191 × 1684).
+        .constrain(function(transform) {
+          const W = 1191, H = 1684, k = transform.k;
+          const mapW = W * k, mapH = H * k;
+          // If map larger than viewport: clamp edges; otherwise center the map.
+          const x = mapW >= W
+            ? Math.max(W - mapW, Math.min(0, transform.x))
+            : (W - mapW) / 2;
+          const y = mapH >= H
+            ? Math.max(H - mapH, Math.min(0, transform.y))
+            : (H - mapH) / 2;
+          return d3.zoomIdentity.translate(x, y).scale(k);
+        })
         .on("zoom", (event) => {
           zoomShell.attr("transform", event.transform);
+          updateHitRadii(event.transform.k);
         });
 
       svg.call(zoom);
 
-      // Dismiss popup on background click
-      svg.on("click", () => hidePopup());
+      // On landscape screens the portrait map (1191×1684) would letterbox.
+      // fitToWidth zooms so the map fills the full screen width, making the
+      // top of Germany visible; users pan down to explore the rest.
+      function fitToWidth(animated) {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        if (vw / vh <= 1191 / 1684) return; // portrait: already fills width
+        // svgScale = factor "meet" uses for the viewBox → CSS mapping
+        const svgS = vh / 1684;
+        const k  = vw / (1191 * svgS);
+        const tx = -(vw / svgS - 1191) / 2; // shift map left edge to CSS x=0
+        const t  = d3.zoomIdentity.translate(tx, 0).scale(k);
+        if (animated) {
+          svg.transition().duration(700).call(zoom.transform, t);
+        } else {
+          svg.call(zoom.transform, t);
+        }
+      }
+
+      fitToWidth(false);
+
+      // Invalidate svgScale cache and refresh radii on resize.
+      window.addEventListener("resize", () => {
+        _svgScale = null;
+        _lastK = null; // force radius recalc
+        updateHitRadii(d3.zoomTransform(svg.node()).k);
+      });
+
+      // Dismiss popup and clear route highlight on background click.
+      svg.on("click", () => { hidePopup(); clearRouteHighlight(); });
 
       // ── Reset button ─────────────────────────────────────────────────────
       d3.select("#reset-view").on("click", () => {
         hidePopup();
-        svg.transition().duration(700)
-          .call(zoom.transform, d3.zoomIdentity);
+        fitToWidth(true);
       });
+
+      // ── Keyboard navigation ───────────────────────────────────────────────
+      // Arrow keys: camera metaphor — key direction = which way the viewport moves.
+      // Smooth via rAF loop; no per-keydown transition so there's no lag.
+      const keysDown = new Set();
+
+      // Momentum panning — velocity in CSS px/frame, decays when key released.
+      const vel = { x: 0, y: 0 };
+      const ACCEL   = 1.5;   // CSS px/frame² while key held
+      const MAX_SPD = 18;    // CSS px/frame cap (~1080 px/s at 60 fps)
+      const FRICTION = 0.78; // multiplier per frame when key released
+
+      (function panLoop() {
+        requestAnimationFrame(panLoop);
+        const L = keysDown.has("ArrowLeft"),  R = keysDown.has("ArrowRight");
+        const U = keysDown.has("ArrowUp"),    D = keysDown.has("ArrowDown");
+
+        // Accelerate in held directions, apply friction on the others.
+        if (L) vel.x += ACCEL; else if (R) vel.x -= ACCEL; else vel.x *= FRICTION;
+        if (U) vel.y += ACCEL; else if (D) vel.y -= ACCEL; else vel.y *= FRICTION;
+
+        // Clamp to max speed.
+        const spd = Math.hypot(vel.x, vel.y);
+        if (spd > MAX_SPD) { vel.x = vel.x / spd * MAX_SPD; vel.y = vel.y / spd * MAX_SPD; }
+
+        // Kill negligible drift.
+        if (Math.abs(vel.x) < 0.05) vel.x = 0;
+        if (Math.abs(vel.y) < 0.05) vel.y = 0;
+        if (vel.x === 0 && vel.y === 0) return;
+
+        // Convert CSS px/frame → translateBy units (which adds k·dx to t.x).
+        const t  = d3.zoomTransform(svg.node());
+        const sc = svgScale();
+        svg.call(zoom.translateBy, vel.x / (t.k * sc), vel.y / (t.k * sc));
+        // If the constrain function blocked movement in an axis, kill that velocity
+        // so the map doesn't judder against the boundary.
+        const t2 = d3.zoomTransform(svg.node());
+        if (Math.abs(t2.x - t.x) < 0.01) vel.x = 0;
+        if (Math.abs(t2.y - t.y) < 0.01) vel.y = 0;
+      }());
+
+      window.addEventListener("keydown", (e) => {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+        switch (e.key) {
+          case "ArrowLeft": case "ArrowRight":
+          case "ArrowUp":   case "ArrowDown":
+            e.preventDefault();
+            keysDown.add(e.key);
+            break;
+          case "+": case "=": case "PageUp":
+            e.preventDefault();
+            svg.transition().duration(220).call(zoom.scaleBy, 1.4);
+            break;
+          case "-": case "PageDown":
+            e.preventDefault();
+            svg.transition().duration(220).call(zoom.scaleBy, 1 / 1.4);
+            break;
+          case "0":
+            e.preventDefault();
+            hidePopup();
+            fitToWidth(true);
+            break;
+          case "Escape":
+            hidePopup();
+            break;
+        }
+      });
+
+      window.addEventListener("keyup", (e) => keysDown.delete(e.key));
 
     }).catch((err) => {
       console.error("Failed to load map resources:", err);
