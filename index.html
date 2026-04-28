@@ -77,11 +77,11 @@
       stroke: rgba(60, 150, 240, 0.8);
     }
 
-    /* Route popup: show route links, hide station-only links */
-    #popup[data-mode="route"] #link-bf,
-    #popup[data-mode="route"] #link-dbf,
-    #popup[data-mode="route"] #link-wd,
-    #popup[data-mode="route"] #link-wp,
+    /* Route popup: hide station-only icon columns */
+    #popup[data-mode="route"] #col-bf,
+    #popup[data-mode="route"] #col-dbf,
+    #popup[data-mode="route"] #col-wd,
+    #popup[data-mode="route"] #col-wp { display: none; }
 
     /* ── HUD ── */
     #hud {
@@ -264,11 +264,18 @@
 
     .popup-train-icon { font-size: 16px; flex-shrink: 0; }
 
+    .popup-name-group { display: flex; flex-direction: column; flex: 1; gap: 1px; }
+
     #popup-name {
       font-size: 13px;
       font-weight: 700;
       color: #111;
-      flex: 1;
+    }
+
+    #popup-provider {
+      font-size: 10px;
+      color: rgba(17, 17, 17, 0.38);
+      font-weight: 400;
     }
 
     #popup-close {
@@ -289,10 +296,23 @@
     /* ── Icon row ── */
     .popup-icons {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      padding-top: 2px;
+      align-items: flex-start;
+      gap: 8px;
+      padding-top: 4px;
       border-top: 1px solid rgba(23, 23, 23, 0.07);
+    }
+
+    .icon-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .icon-label {
+      font-size: 9px;
+      color: rgba(17, 17, 17, 0.38);
+      white-space: nowrap;
     }
 
     .icon-btn {
@@ -318,9 +338,9 @@
 
     .icon-btn.wp  { background: #1a1a1a; }
     .icon-btn.wd  { background: #006699; }
-    .icon-btn.dbf { background: #EC0016; }
+    .icon-btn.dbf { background: #00838F; }
     .icon-btn.bf  { background: #003082; }
-    .icon-btn.zf  { background: #e67e22; }
+    .icon-btn.zf  { background: #E51400; }
 
     .icon-btn img,
     .icon-btn svg { display: block; }
@@ -388,48 +408,61 @@
   <div id="popup" class="hidden">
     <div class="popup-header">
       <span class="popup-train-icon">🚉</span>
-      <span id="popup-name"></span>
+      <div class="popup-name-group">
+        <span id="popup-name"></span>
+        <span id="popup-provider"></span>
+      </div>
       <button id="popup-close" title="Schließen">✕</button>
     </div>
     <div class="popup-icons">
 
-      <!-- Bahnhof.de station overview -->
-      <a id="link-bf" class="icon-btn bf" href="#" target="_blank" rel="noopener" title="Bahnhof.de">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="white" aria-hidden="true">
-          <polygon points="12,2 22,10 2,10"/>
-          <rect x="3" y="10" width="18" height="12" rx="1"/>
-        </svg>
-      </a>
+      <div id="col-bf" class="icon-col">
+        <a id="link-bf" class="icon-btn bf" href="#" target="_blank" rel="noopener" title="Bahnhof.de">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="white" aria-hidden="true">
+            <polygon points="12,2 22,10 2,10"/>
+            <rect x="3" y="10" width="18" height="12" rx="1"/>
+          </svg>
+        </a>
+        <span class="icon-label">Bahnhof</span>
+      </div>
 
-      <!-- DBF / Final Rewind departure board -->
-      <a id="link-dbf" class="icon-btn dbf" href="#" target="_blank" rel="noopener" title="Final Rewind (DBF)">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="white" aria-hidden="true">
-          <rect x="3" y="4" width="18" height="11" rx="3"/>
-          <rect x="6" y="7" width="4" height="3" rx="1" fill="#EC0016"/>
-          <rect x="14" y="7" width="4" height="3" rx="1" fill="#EC0016"/>
-          <rect x="2" y="14" width="20" height="2" rx="1"/>
-          <circle cx="7"  cy="18" r="2"/>
-          <circle cx="17" cy="18" r="2"/>
-        </svg>
-      </a>
+      <div id="col-dbf" class="icon-col">
+        <a id="link-dbf" class="icon-btn dbf" href="#" target="_blank" rel="noopener" title="Final Rewind">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="white" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="11" rx="3"/>
+            <rect x="6" y="7" width="4" height="3" rx="1" fill="#00838F"/>
+            <rect x="14" y="7" width="4" height="3" rx="1" fill="#00838F"/>
+            <rect x="2" y="14" width="20" height="2" rx="1"/>
+            <circle cx="7"  cy="18" r="2"/>
+            <circle cx="17" cy="18" r="2"/>
+          </svg>
+        </a>
+        <span class="icon-label">Abfahrt</span>
+      </div>
 
-      <!-- Wikidata -->
-      <a id="link-wd" class="icon-btn wd" href="#" target="_blank" rel="noopener" title="Wikidata">
-        <img src="https://cdn.simpleicons.org/wikidata/white" width="22" height="22" alt="Wikidata">
-      </a>
+      <div id="col-wd" class="icon-col">
+        <a id="link-wd" class="icon-btn wd" href="#" target="_blank" rel="noopener" title="Wikidata">
+          <img src="https://cdn.simpleicons.org/wikidata/white" width="22" height="22" alt="Wikidata">
+        </a>
+        <span class="icon-label">Wikidata</span>
+      </div>
 
-      <!-- Wikipedia -->
-      <a id="link-wp" class="icon-btn wp" href="#" target="_blank" rel="noopener" title="Wikipedia">
-        <img src="https://cdn.simpleicons.org/wikipedia/white" width="22" height="22" alt="Wikipedia">
-      </a>
+      <div id="col-wp" class="icon-col">
+        <a id="link-wp" class="icon-btn wp" href="#" target="_blank" rel="noopener" title="Wikipedia">
+          <img src="https://cdn.simpleicons.org/wikipedia/white" width="22" height="22" alt="Wikipedia">
+        </a>
+        <span class="icon-label">Wikipedia</span>
+      </div>
 
-<!-- Zugfinder live train tracker -->
-      <a id="link-zf" class="icon-btn zf" href="#" target="_blank" rel="noopener" title="Zugfinder — Live-Status &amp; Verspätung">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-          <circle cx="10" cy="10" r="6"/>
-          <line x1="14.5" y1="14.5" x2="20" y2="20"/>
-        </svg>
-      </a>
+      <div class="icon-col">
+        <a id="link-zf" class="icon-btn zf" href="#" target="_blank" rel="noopener" title="Zugfinder">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <circle cx="10" cy="10" r="6"/>
+            <line x1="14.5" y1="14.5" x2="20" y2="20"/>
+          </svg>
+        </a>
+        <span class="icon-label">Zugfinder</span>
+      </div>
 
     </div>
   </div>
@@ -522,7 +555,8 @@
 
     // ── Popup ────────────────────────────────────────────────────────────────
     const popup     = document.getElementById("popup");
-    const popupName = document.getElementById("popup-name");
+    const popupName     = document.getElementById("popup-name");
+    const popupProvider = document.getElementById("popup-provider");
     const linkWp    = document.getElementById("link-wp");
     const linkWd    = document.getElementById("link-wd");
     const linkDbf   = document.getElementById("link-dbf");
