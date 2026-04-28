@@ -82,9 +82,6 @@
     #popup[data-mode="route"] #link-dbf,
     #popup[data-mode="route"] #link-wd,
     #popup[data-mode="route"] #link-wp,
-    #popup[data-mode="route"] #link-fb { display: none; }
-
-    .icon-btn.fb { background: #37474f; }
 
     /* ── HUD ── */
     #hud {
@@ -426,16 +423,7 @@
         <img src="https://cdn.simpleicons.org/wikipedia/white" width="22" height="22" alt="Wikipedia">
       </a>
 
-      <!-- Fernbahn.de station search (station mode only) -->
-      <a id="link-fb" class="icon-btn fb" href="#" target="_blank" rel="noopener" title="Fernbahn.de — Fernverkehr ab diesem Bahnhof">
-        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
-          <ellipse cx="12" cy="6" rx="8" ry="3"/>
-          <path d="M4 6v4c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/>
-          <path d="M4 10v4c0 1.66 3.58 3 8 3s8-1.34 8-3v-4"/>
-        </svg>
-      </a>
-
-      <!-- Zugfinder live train tracker -->
+<!-- Zugfinder live train tracker -->
       <a id="link-zf" class="icon-btn zf" href="#" target="_blank" rel="noopener" title="Zugfinder — Live-Status &amp; Verspätung">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" aria-hidden="true">
           <circle cx="10" cy="10" r="6"/>
@@ -540,7 +528,6 @@
     const linkDbf   = document.getElementById("link-dbf");
     const linkBf    = document.getElementById("link-bf");
     const linkZf    = document.getElementById("link-zf");
-    const linkFb    = document.getElementById("link-fb");
 
     let stationLinks = {};  // populated from station_links.json at load time
     let routeLinks   = {};  // populated from route_links.json at load time
@@ -557,7 +544,6 @@
         : `https://www.wikidata.org/w/index.php?search=${encoded}&language=de&ns0=1`;
       linkDbf.href = `https://dbf.finalrewind.org/${encoded}`;
       linkBf.href  = `https://www.bahnhof.de/${toSlug(name)}`;
-      linkFb.href  = `https://www.fernbahn.de/datenbank/suche/?bahnhof=${encoded}`;
       linkZf.href  = `https://www.zugfinder.net/de/bahnhofssuche-${encoded}`;
 
       popup.style.left = clientX + "px";
