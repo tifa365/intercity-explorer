@@ -381,7 +381,7 @@
         </div>
         <div class="info-row">
           <span class="info-label"><span class="info-line">●</span> Linie (z.&nbsp;B. ICE&nbsp;77)</span>
-          <span class="info-val">Wikipedia Linienübersicht</span>
+          <span class="info-val">Wikipedia DE &amp; EN</span>
         </div>
         <hr>
         <div class="info-heading">Tastatur</div>
@@ -464,11 +464,18 @@
         <span class="icon-label">Wikipedia</span>
       </div>
 
-      <div class="icon-col">
-        <a id="link-zf" class="icon-btn zf" href="#" target="_blank" rel="noopener" title="Wikipedia Linienübersicht">
-          <img src="https://cdn.simpleicons.org/wikipedia/white" width="22" height="22" alt="Wikipedia">
+      <div id="col-zf-de" class="icon-col">
+        <a id="link-zf" class="icon-btn zf" href="#" target="_blank" rel="noopener" title="Wikipedia DE – Linienübersicht">
+          <img src="https://cdn.simpleicons.org/wikipedia/white" width="22" height="22" alt="Wikipedia DE">
         </a>
-        <span class="icon-label">Wikipedia</span>
+        <span class="icon-label">Wiki DE</span>
+      </div>
+
+      <div id="col-zf-en" class="icon-col">
+        <a id="link-zf-en" class="icon-btn zf" href="#" target="_blank" rel="noopener" title="Wikipedia EN – Line overview">
+          <img src="https://cdn.simpleicons.org/wikipedia/white" width="22" height="22" alt="Wikipedia EN">
+        </a>
+        <span class="icon-label">Wiki EN</span>
       </div>
 
     </div>
@@ -571,6 +578,7 @@
     const linkDbf   = document.getElementById("link-dbf");
     const linkBf    = document.getElementById("link-bf");
     const linkZf    = document.getElementById("link-zf");
+    const linkZfEn  = document.getElementById("link-zf-en");
 
     let stationLinks = {};  // populated from station_links.json at load time
 
@@ -578,22 +586,34 @@
                             39,41,42,43,45,47,49,50,60,62,77,78,79,82,83,84,85,88,89,90,91]);
     const IC_DE  = new Set([17,18,29,32,34,35,37,39,51,55,56,57,61,76,87]);
 
-    function routeWikipediaUrl(name) {
+    function routeWikipediaUrl_DE(name) {
       const m = name.trim().match(/^([A-Z][A-Z/]*)\s+(.+)$/);
       if (!m) return "https://de.wikipedia.org/wiki/Special:Search?search=" + encodeURIComponent(name);
       const type = m[1];
       const n    = parseInt((m[2].match(/(\d+)/) || [])[1], 10);
       if (type === "ICE" || type === "ECE" || type.includes("/")) {
-        if (ICE_DE.has(n))
-          return `https://de.wikipedia.org/wiki/Liste_der_Intercity-Express-Linien#Linie_${n}`;
+        const anchor = ICE_DE.has(n) ? `#Linie_${n}` : "";
+        return `https://de.wikipedia.org/wiki/Liste_der_Intercity-Express-Linien${anchor}`;
+      }
+      if (type === "IC") {
+        const anchor = IC_DE.has(n) ? `#Linie_${n}` : "";
+        return `https://de.wikipedia.org/wiki/Liste_der_Intercity-Linien_(Deutschland)${anchor}`;
+      }
+      return `https://de.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(name)}`;
+    }
+
+    function routeWikipediaUrl_EN(name) {
+      const m = name.trim().match(/^([A-Z][A-Z/]*)\s+(.+)$/);
+      if (!m) return "https://en.wikipedia.org/wiki/Special:Search?search=" + encodeURIComponent(name);
+      const type = m[1];
+      const n    = parseInt((m[2].match(/(\d+)/) || [])[1], 10);
+      if (type === "ICE" || type === "ECE" || type.includes("/")) {
         return `https://en.wikipedia.org/wiki/List_of_Intercity-Express_lines_in_Germany#${n}`;
       }
       if (type === "IC") {
-        if (IC_DE.has(n))
-          return `https://de.wikipedia.org/wiki/Liste_der_Intercity-Linien_(Deutschland)#Linie_${n}`;
-        return "https://en.wikipedia.org/wiki/List_of_Intercity_lines_in_Germany";
+        return `https://en.wikipedia.org/wiki/List_of_Intercity_lines_in_Germany#${n}`;
       }
-      return `https://de.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(name)}`;
+      return `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(name)}`;
     }
 
     function showPopup(name, clientX, clientY) {
@@ -621,7 +641,8 @@
       document.querySelector(".popup-train-icon").textContent = "🚄";
       popup.dataset.mode = "route";
 
-      linkZf.href = routeWikipediaUrl(name);
+      linkZf.href   = routeWikipediaUrl_DE(name);
+      linkZfEn.href = routeWikipediaUrl_EN(name);
 
       popup.style.left = clientX + "px";
       popup.style.top  = clientY + "px";
