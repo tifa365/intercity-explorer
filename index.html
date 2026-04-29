@@ -340,7 +340,7 @@
     .icon-btn.wd  { background: #006699; }
     .icon-btn.dbf { background: #00838F; }
     .icon-btn.bf  { background: #003082; }
-    .icon-btn.zf  { background: #E51400; }
+    .icon-btn.zf  { background: #3366CC; }
 
     .icon-btn img,
     .icon-btn svg { display: block; }
@@ -381,7 +381,7 @@
         </div>
         <div class="info-row">
           <span class="info-label"><span class="info-line">●</span> Linie (z.&nbsp;B. ICE&nbsp;77)</span>
-          <span class="info-val">Zugfinder</span>
+          <span class="info-val">Wikipedia Linienübersicht</span>
         </div>
         <hr>
         <div class="info-heading">Tastatur</div>
@@ -465,13 +465,10 @@
       </div>
 
       <div class="icon-col">
-        <a id="link-zf" class="icon-btn zf" href="#" target="_blank" rel="noopener" title="Zugfinder">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" aria-hidden="true">
-            <circle cx="10" cy="10" r="6"/>
-            <line x1="14.5" y1="14.5" x2="20" y2="20"/>
-          </svg>
+        <a id="link-zf" class="icon-btn zf" href="#" target="_blank" rel="noopener" title="Wikipedia Linienübersicht">
+          <img src="https://cdn.simpleicons.org/wikipedia/white" width="22" height="22" alt="Wikipedia">
         </a>
-        <span class="icon-label">Zugfinder</span>
+        <span class="icon-label">Wikipedia</span>
       </div>
 
     </div>
@@ -488,17 +485,18 @@
     //   • next text starts with lowercase  → continuation syllable ("münde")
     //   • next text starts with '('        → parenthetical qualifier ("(Main)")
     //   • next text is a known station suffix ("Hbf", "Flughafen", …)
-    const STATION_SUFFIXES = new Set(["Hbf", "West", "Ost", "Nord", "Süd", "Mitte", "Flughafen"]);
-    const LOCATIVE_PREPS   = new Set(["am", "im", "an", "bei", "ob", "a.", "i."]);
+    const STATION_SUFFIXES    = new Set(["Hbf", "West", "Ost", "Nord", "Süd", "Mitte", "Flughafen"]);
+    const LOCATIVE_PREPS      = new Set(["am", "im", "an", "bei", "ob", "a.", "i."]);
+    // German qualifying words that are never standalone station names
+    const INCOMPLETE_PREFIXES = new Set(["Bad", "Lutherstadt", "Schwäbisch", "Fränkisch"]);
 
     function isContinuation(prevText, nextText) {
       if (prevText.endsWith("-"))              return true;
       if (nextText[0] !== nextText[0].toUpperCase()) return true; // lowercase start
       if (nextText.startsWith("("))            return true;
       if (STATION_SUFFIXES.has(nextText.trim())) return true;
+      if (INCOMPLETE_PREFIXES.has(prevText.trim())) return true;
       const prevWords = prevText.trim().split(/\s+/);
-      // Single-word prefix like "Bad", "Lutherstadt", "Schwäbisch" — clearly incomplete
-      if (prevWords.length === 1 && !STATION_SUFFIXES.has(prevText.trim())) return true;
       // Locative preposition ending: "Prien am" → "Chiemsee"
       if (LOCATIVE_PREPS.has(prevWords[prevWords.length - 1].toLowerCase())) return true;
       return false;
@@ -574,7 +572,20 @@
     const linkZf    = document.getElementById("link-zf");
 
     let stationLinks = {};  // populated from station_links.json at load time
-    let routeLinks   = {};  // populated from route_links.json at load time
+
+    function routeWikipediaUrl(name) {
+      const m = name.trim().match(/^([A-Z][A-Z/]*)\s+(.+)$/);
+      if (!m) return "https://de.wikipedia.org/wiki/Special:Search?search=" + encodeURIComponent(name);
+      const type     = m[1];
+      const firstNum = (m[2].match(/(\d+)/) || [])[1] || m[2];
+      if (type === "ICE" || type === "ECE" || type.includes("/")) {
+        return `https://de.wikipedia.org/wiki/Liste_der_Intercity-Express-Linien#Linie_${firstNum}`;
+      }
+      if (type === "IC") {
+        return `https://de.wikipedia.org/wiki/Liste_der_Intercity-Linien_(Deutschland)#Linie_${firstNum}`;
+      }
+      return `https://de.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(name)}`;
+    }
 
     function showPopup(name, clientX, clientY) {
       popupName.textContent = name;
@@ -601,13 +612,7 @@
       document.querySelector(".popup-train-icon").textContent = "🚄";
       popup.dataset.mode = "route";
 
-      const urls = routeLinks[name];
-      if (urls) {
-        linkZf.href = urls.zugfinder;
-      } else {
-        const enc = encodeURIComponent(name);
-        linkZf.href = `https://www.zugfinder.net/de/zug-${enc.replace(/%20/g, "_")}`;
-      }
+      linkZf.href = routeWikipediaUrl(name);
 
       popup.style.left = clientX + "px";
       popup.style.top  = clientY + "px";
@@ -642,10 +647,8 @@
       d3.json("station_names_positions.json"),
       d3.json("station_links.json"),
       d3.json("route_labels.json"),
-      d3.json("route_links.json"),
-    ]).then(([svgDocument, rawStations, links, routeLabels, rLinks]) => {
+    ]).then(([svgDocument, rawStations, links, routeLabels]) => {
       stationLinks = links;
-      routeLinks   = rLinks;
 
       // ── Adopt SVG into the page ──────────────────────────────────────────
       const importedSvg = document.importNode(svgDocument.documentElement, true);
