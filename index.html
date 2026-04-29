@@ -683,9 +683,7 @@
       linkBf.href  = `https://www.bahnhof.de/${toSlug(name)}`;
       linkZf.href  = `https://www.zugfinder.net/de/bahnhofssuche-${encoded}`;
 
-      popup.style.left = clientX + "px";
-      popup.style.top  = clientY + "px";
-      popup.classList.remove("hidden");
+      placePopup(clientX, clientY);
     }
 
     function showRoutePopup(names, color, clientX, clientY) {
@@ -697,9 +695,18 @@
       linkZf.href   = routeWikipediaUrl_DE(name);
       linkZfEn.href = routeWikipediaUrl_EN(name);
 
+      placePopup(clientX, clientY);
+    }
+
+    function placePopup(clientX, clientY) {
+      popup.style.removeProperty("transform");
       popup.style.left = clientX + "px";
       popup.style.top  = clientY + "px";
       popup.classList.remove("hidden");
+      // Flip below the click if the popup overflows the top of the viewport
+      if (popup.getBoundingClientRect().top < 8) {
+        popup.style.transform = "translate(-50%, 16px)";
+      }
     }
 
     function hidePopup() {
