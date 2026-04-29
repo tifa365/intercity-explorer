@@ -6,8 +6,15 @@ Run once before serving the app:
 """
 import json, re, time, urllib.parse, urllib.request
 
-STATION_SUFFIXES = {"Hbf", "West", "Ost", "Nord", "Süd", "Mitte", "Flughafen"}
-LOCATIVE_PREPS   = {"am", "im", "an", "bei", "ob", "a.", "i."}
+CENTER_ALIGN_MAX = 12
+RIGHT_ALIGN_MAX = 20
+RIGHT_EDGE_DELTA_MAX = 0.5
+VERTICAL_GAP_MAX = 11
+
+STATION_SUFFIXES    = {"Hbf", "West", "Ost", "Nord", "Süd", "Mitte", "Flughafen", "Ostbahnhof"}
+LOCATIVE_PREPS      = {"am", "im", "an", "bei", "ob", "a.", "i."}
+# German qualifying words that are never standalone station names
+INCOMPLETE_PREFIXES = {"Bad", "Lutherstadt", "Schwäbisch", "Fränkisch"}
 STATION_TERMS    = [
     "railway station", "railway halt", "train station",
     "bahnhof", "haltepunkt", "station in",
@@ -19,9 +26,6 @@ STATION_TERMS    = [
 # Manually verified QIDs for stations the API cannot match automatically.
 # Fragments from false label splits are set to None (intentionally skipped).
 MANUAL_QIDS = {
-    # Remaining PDF coordinate-gap artefacts (two spans too far apart to merge)
-    "Hbf":    None,  # orphan suffix of Wiesbaden Hbf (dcx=13.7, just over threshold)
-    "Berlin": None,  # orphan prefix of Berlin Gesundbrunnen (dcx=18.3)
     # Real station whose German-only Wikidata description evades English search
     "Hude": "Q5928360",  # Bahnhof Hude (Oldenburg)
     # German stations (parentheticals / hyphens trip the auto-search)
@@ -59,6 +63,8 @@ MANUAL_QIDS = {
 def is_continuation(prev, nxt):
     if prev.endswith("-"):
         return True
+    if nxt.endswith("-"):                   # next span is itself a hyphen-continuation fragment
+        return True
     if nxt and nxt[0] != nxt[0].upper():   # lowercase start → always continue
         return True
     if nxt.startswith("("):
@@ -66,8 +72,8 @@ def is_continuation(prev, nxt):
     if nxt.strip() in STATION_SUFFIXES:
         return True
     prev_words = prev.strip().split()
-    # Single-word prefix like "Bad", "Lutherstadt", "Schwäbisch" — clearly incomplete
-    if len(prev_words) == 1 and prev.strip() not in STATION_SUFFIXES:
+    # Known German qualifying prefixes that never stand alone as station names
+    if prev.strip() in INCOMPLETE_PREFIXES:
         return True
     # Locative preposition ending: "Prien am" → "Chiemsee", always incomplete
     if prev_words and prev_words[-1].lower() in LOCATIVE_PREPS:
@@ -79,6 +85,19 @@ def merge_text(prev, nxt):
     if not prev.endswith("-"):
         return prev + " " + nxt
     return (prev[:-1] + nxt) if nxt[0] == nxt[0].lower() else (prev + nxt)
+
+
+def right_edge(span):
+    return 2 * span["cx"] - span["x"]
+
+
+def same_column(a, b):
+    dcx = abs(a["cx"] - b["cx"])
+    if dcx < CENTER_ALIGN_MAX:
+        return "center"
+    if dcx < RIGHT_ALIGN_MAX and abs(right_edge(a) - right_edge(b)) <= RIGHT_EDGE_DELTA_MAX:
+        return "right"
+    return None
 
 
 def group_stations(spans):
@@ -98,8 +117,10 @@ def group_stations(spans):
                 if j in used:
                     continue
                 dcy = b["cy"] - tail["cy"]
-                if abs(tail["cx"] - b["cx"]) < 12 and 0 < dcy < 11 \
-                        and is_continuation(tail["text"], b["text"]):
+                column_match = same_column(tail, b)
+                if 0 < dcy < VERTICAL_GAP_MAX and (
+                        (column_match == "center" and is_continuation(tail["text"], b["text"]))
+                        or column_match == "right"):
                     used.add(j)
                     chain.append(b)
                     tail = b
@@ -161,6 +182,7 @@ def main():
     spans = json.load(open("station_names_positions.json", encoding="utf-8"))
     stations = group_stations(spans)
     print(f"Grouped {len(spans)} spans → {len(stations)} stations")
+    station_names = [s["name"] for s in stations]
 
     # Load existing results so the script is safe to re-run / resume.
     try:
@@ -169,16 +191,15 @@ def main():
     except FileNotFoundError:
         links = {}
 
-    # Apply manual entries: always overwrite None (unresolved or intentional skip).
-    # Already-resolved QIDs (non-None) are left untouched.
-    added = sum(1 for k, v in MANUAL_QIDS.items() if links.get(k) is None)
+    # Apply manual entries to the cache before deciding which current stations need lookup.
+    added = sum(1 for k in MANUAL_QIDS if links.get(k) is None)
     for name, qid in MANUAL_QIDS.items():
         if links.get(name) is None:
             links[name] = qid
     if added:
         print(f"Applied {added} manual entries")
 
-    # Only process stations not yet in links (manual Nones are already present).
+    # Only process current grouped stations not yet present in the cache.
     todo = [s for s in stations if s["name"] not in links]
     print(f"{len(todo)} stations to look up via Wikidata API")
 
@@ -190,10 +211,12 @@ def main():
         print(f"  [{i+1}/{len(todo)}] {name:45s} {status}")
         time.sleep(0.35)
 
-    json.dump(links, open("station_links.json", "w", encoding="utf-8"),
+    current_links = {name: links.get(name) for name in station_names}
+
+    json.dump(current_links, open("station_links.json", "w", encoding="utf-8"),
               ensure_ascii=False, indent=2)
-    found = sum(1 for v in links.values() if v)
-    print(f"\nDone — {found}/{len(links)} stations matched. Saved station_links.json")
+    found = sum(1 for v in current_links.values() if v)
+    print(f"\nDone — {found}/{len(current_links)} stations matched. Saved station_links.json")
 
 
 if __name__ == "__main__":

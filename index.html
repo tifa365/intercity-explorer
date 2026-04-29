@@ -77,6 +77,37 @@
       stroke: rgba(60, 150, 240, 0.8);
     }
 
+    /* Route info tooltip — hidden for stations, shown for routes */
+    .route-info-tip {
+      display: none;
+      font-size: 11px;
+      color: rgba(23, 23, 23, 0.32);
+      cursor: help;
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      line-height: 1;
+    }
+    #popup[data-mode="route"] .route-info-tip { display: block; }
+    .route-info-tip::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 7px);
+      right: 0;
+      background: rgba(23, 23, 23, 0.88);
+      color: #fff;
+      font-size: 10.5px;
+      line-height: 1.5;
+      padding: 6px 10px;
+      border-radius: 7px;
+      white-space: pre;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 120ms ease;
+      z-index: 900;
+    }
+    .route-info-tip:hover::after { opacity: 1; }
+
     /* Route popup: hide station-only icon columns */
     #popup[data-mode="route"] #col-bf,
     #popup[data-mode="route"] #col-dbf,
@@ -340,7 +371,8 @@
     .icon-btn.wd  { background: #006699; }
     .icon-btn.dbf { background: #00838F; }
     .icon-btn.bf  { background: #003082; }
-    .icon-btn.zf  { background: #3366CC; }
+    .icon-btn.zf    { background: #2A55B0; }
+    .icon-btn.zf-en { background: #6B9BD2; }
 
     .icon-btn img,
     .icon-btn svg { display: block; }
@@ -472,26 +504,32 @@
       </div>
 
       <div id="col-zf-en" class="icon-col">
-        <a id="link-zf-en" class="icon-btn zf" href="#" target="_blank" rel="noopener" title="Wikipedia EN – Line overview">
+        <a id="link-zf-en" class="icon-btn zf-en" href="#" target="_blank" rel="noopener" title="Wikipedia EN – Line overview">
           <img src="https://cdn.simpleicons.org/wikipedia/white" width="22" height="22" alt="Wikipedia EN">
         </a>
         <span class="icon-label">Wiki EN</span>
       </div>
 
     </div>
+    <span id="popup-route-note" class="route-info-tip" data-tip="Der deutsche Artikel kann unvollständig sein — deswegen wurde die englische Wikipedia als Ergänzung eingebaut.&#10;Fehlt ein eigener Abschnitt zur Zuglinie im entsprechenden Artikel, öffnet der Link die Gesamtübersicht als Alternative.">ⓘ</span>
   </div>
 
   <script>
     // ── Station span grouping ────────────────────────────────────────────────
     // The PDF extractor produces one span per typeset line. Multi-line labels
     // ("Frankfurt (Main) / Hbf", "Hermsdorf- / Klosterlausnitz") arrive as
-    // separate entries. Merge spans that share the same horizontal column
-    // (|cx| < 12 px) and sit on the very next line (dcy 1–11 px), but ONLY
-    // when the transition looks like a genuine label continuation:
+    // separate entries. Merge spans that either share the same visual center
+    // column or are right-aligned like a right-justified multiline label, and
+    // sit on the very next line (dcy 1–11 px). Center-aligned pairs still need
+    // a linguistic continuation cue:
     //   • previous text ends with '-'      → hyphenated word or compound name
     //   • next text starts with lowercase  → continuation syllable ("münde")
     //   • next text starts with '('        → parenthetical qualifier ("(Main)")
     //   • next text is a known station suffix ("Hbf", "Flughafen", …)
+    const CENTER_ALIGN_MAX    = 12;
+    const RIGHT_ALIGN_MAX     = 20;
+    const RIGHT_EDGE_DELTA_MAX = 0.5;
+    const VERTICAL_GAP_MAX    = 11;
     const STATION_SUFFIXES    = new Set(["Hbf", "West", "Ost", "Nord", "Süd", "Mitte", "Flughafen", "Ostbahnhof"]);
     const LOCATIVE_PREPS      = new Set(["am", "im", "an", "bei", "ob", "a.", "i."]);
     // German qualifying words that are never standalone station names
@@ -519,6 +557,19 @@
         : prev + next;               // "Hermsdorf-" + "Klosterlausnitz" → "Hermsdorf-Klosterlausnitz"
     }
 
+    function rightEdge(span) {
+      return 2 * span.cx - span.x;
+    }
+
+    function sameColumn(a, b) {
+      const dcx = Math.abs(a.cx - b.cx);
+      if (dcx < CENTER_ALIGN_MAX) return "center";
+      if (dcx < RIGHT_ALIGN_MAX && Math.abs(rightEdge(a) - rightEdge(b)) <= RIGHT_EDGE_DELTA_MAX) {
+        return "right";
+      }
+      return null;
+    }
+
     function groupStations(spans) {
       const sorted = [...spans].sort((a, b) => a.cy - b.cy || a.cx - b.cx);
       const used = new Set();
@@ -538,8 +589,10 @@
             if (used.has(j)) continue;
             const b = sorted[j];
             const dcy = b.cy - tail.cy;
-            if (Math.abs(tail.cx - b.cx) < 12 && dcy > 0 && dcy < 11
-                && isContinuation(tail.text, b.text)) {
+            const columnMatch = sameColumn(tail, b);
+            if (dcy > 0 && dcy < VERTICAL_GAP_MAX
+                && ((columnMatch === "center" && isContinuation(tail.text, b.text))
+                || columnMatch === "right")) {
               used.add(j);
               chain.push(b);
               tail = b;
