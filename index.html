@@ -672,6 +672,7 @@
     }
 
     function showPopup(name, clientX, clientY) {
+      popup.dataset.mode = "station";
       popupName.textContent = name;
 
       const wikiTitle = name.replace(/ /g, "_");
